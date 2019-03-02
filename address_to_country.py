@@ -1,37 +1,25 @@
 
 
-def geocoding_lookup(apiKey, address):
+def geocoding_lookup(gl_api_key, address):
     """
-    Returns the latitude and longitude of a location using the Google Maps Geocoding API.
+    Returns the response JSON payload of a location using the Google Maps Geocoding API.
     API: https://developers.google.com/maps/documentation/geocoding/start
-
-    # INPUT -------------------------------------------------------------------
-    apiKey                  [str]
-    address                 [str]
-
-    # RETURN ------------------------------------------------------------------
-    payload                 [json]
     """
     import requests
     url = ('https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}'
-           .format(address.replace(' ', '+'), apiKey))
+           .format(address.replace(' ', '+'), gl_api_key))
     resp_json_payload = {}
     try:
         response = requests.get(url)
         resp_json_payload = response.json()
     except:
-        print('ERROR: {}'.format(address))
+        print(Fore.RED + 'ERROR: {}'.format(address))
     return resp_json_payload
 
 
 def country_resolver(json):
     """
     Returns the short name variant of the Country from the JSON address payload
-    # INPUT -------------------------------------------------------------------
-    json                    [str]
-
-    # RETURN ------------------------------------------------------------------
-    cntry                   [str]
     """
 
     final = {}
@@ -61,7 +49,10 @@ def country_resolver(json):
     return final['country']
 
 
-def process_csv_file(filename, apiKey):
+def process_csv_file(filename, pcf_api_key):
+    """
+    Reads each line in the passed file, and performs country geocode lookup
+    """
     import csv
     count_match = 0
     count_mismatch = 0
@@ -73,7 +64,7 @@ def process_csv_file(filename, apiKey):
             # print('ADDRESS=%s' % address)
 
             # get google maps geocoder details
-            json_payload = geocoding_lookup(apiKey, address)
+            json_payload = geocoding_lookup(pcf_api_key, address)
             # print('PAYLOAD=%s' % json_payload)
 
             # decode it to get just country code
@@ -82,13 +73,21 @@ def process_csv_file(filename, apiKey):
             if country == expected:
                 count_match = count_match + 1
             else:
-                print('COUNTRY=%s [EXPECTED=%s] ADDRESS:%s' % (country, expected, address))
+                str1 = Fore.RED + 'DIFF:'+ Fore.RESET + ' COUNTRY=' + Fore.RED + country
+                str2 = Fore.RESET + ' [EXPECTED=' + Fore.CYAN + expected + Fore.RESET + '] ADDRESS:' + address
+                print(str1 + str2)
                 count_mismatch = count_mismatch + 1
     print('PROCESSED %d RECORDS: %d MATCH, %d MISMATCH' % (count_match+count_mismatch, count_match, count_mismatch))
     return
 
 
 if __name__ == '__main__':
+
+    # init colorama
+    from colorama import init
+    init(autoreset=True)
+    from colorama import Fore
+
     # get key
     file_api_key = 'api_key.txt'
     file = open(file_api_key, 'r')
