@@ -1,0 +1,6 @@
+#### requiements list ####
+
+# execute with: pip install -r .\requirements.txt
+
+colorama
+requests

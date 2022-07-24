@@ -1,5 +1,3 @@
-
-
 def geocoding_lookup(gl_api_key, address):
     """
     Returns the response JSON payload of a location using the Google Maps Geocoding API.
@@ -35,7 +33,7 @@ def country_resolver(json):
         final['county'] = data.get("administrative_area_level_2", None)
         final['country'] = data.get("country", None)
         final['postal_code'] = data.get("postal_code", None)
-        final['neighborhood'] = data.get("neighborhood",None)
+        final['neighborhood'] = data.get("neighborhood", None)
         final['sublocality'] = data.get("sublocality", None)
         final['housenumber'] = data.get("housenumber", None)
         final['postal_town'] = data.get("postal_town", None)
@@ -71,34 +69,36 @@ def process_csv_file(filename, pcf_api_key):
             country = country_resolver(json_payload)
 
             if country == expected:
+                str1 = Fore.GREEN + 'MATCH:' + Fore.RESET + ' COUNTRY=' + Fore.GREEN + country
+                str2 = Fore.RESET + ' [EXPECTED=' + Fore.CYAN + expected + Fore.RESET + '] ADDRESS:' + address
+                print(str1 + str2)
                 count_match = count_match + 1
             else:
-                str1 = Fore.RED + 'DIFF:'+ Fore.RESET + ' COUNTRY=' + Fore.RED + country
+                str1 = Fore.RED + 'DIFF:' + Fore.RESET + ' COUNTRY=' + Fore.RED + country
                 str2 = Fore.RESET + ' [EXPECTED=' + Fore.CYAN + expected + Fore.RESET + '] ADDRESS:' + address
                 print(str1 + str2)
                 count_mismatch = count_mismatch + 1
-    print('PROCESSED %d RECORDS: %d MATCH, %d MISMATCH' % (count_match+count_mismatch, count_match, count_mismatch))
+    print('PROCESSED %d RECORDS: %d MATCH, %d MISMATCH' % (count_match + count_mismatch, count_match, count_mismatch))
     return
 
 
 if __name__ == '__main__':
-
     # init colorama
     from colorama import init
+
     init(autoreset=True)
     from colorama import Fore
 
-    # get key
+    # get key - DO NOT STORE THIS FILE IN GITHUB REPO!
     file_api_key = 'api_key.txt'
     file = open(file_api_key, 'r')
     api_key = file.read()
     # print('API_KEY=%s' % api_key)
 
+    # CSV Format
+    #  "address-to-test", expected-country-code
+
     file_addresses = 'address_list.csv'
     print('SOURCE=%s' % file_addresses)
 
     process_csv_file(file_addresses, api_key)
-
-
-
-
